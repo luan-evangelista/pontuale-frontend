@@ -1,107 +1,95 @@
 import { Helmet } from 'react-helmet-async';
-// @mui
+import React from 'react';
+import { Container, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Link, Container, Typography, Divider, Stack, Button } from '@mui/material';
-// hooks
 import useResponsive from '../hooks/useResponsive';
-// components
-import Logo from '../components/logo';
-import Iconify from '../components/iconify';
-// sections
 import { LoginForm } from '../sections/auth/login';
 
-// ----------------------------------------------------------------------
-
-const StyledRoot = styled('div')(({ theme }) => ({
-  [theme.breakpoints.up('md')]: {
-    display: 'flex',
-  },
+const StyledPageContainer = styled('div')(({ theme }) => ({
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  backgroundColor: 'var(--blue-800, #00113D)'
 }));
 
-const StyledSection = styled('div')(({ theme }) => ({
-  width: '100%',
-  maxWidth: 480,
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  boxShadow: theme.customShadows.card,
-  backgroundColor: theme.palette.background.default,
+const StyledImgLogo = styled('div')(({ theme }) => ({
+  position: 'relative',
+  overflow: 'hidden',
+  top: '49px',
+  left: '106px',
+  width: '169px',
+  height: '50px',
+  flexShrink: 0,
+  img: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
+    objectPosition: 'center',
+  }
+}));
+
+const StyledImgContainer = styled('div')(({ theme }) => ({
+  position: 'relative',
+  overflow: 'hidden',
+  top: '141px',
+  left: '164px',
+  width: '500px',
+  height: '500px',
+  img: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
+    objectPosition: 'center',
+  }
 }));
 
 const StyledContent = styled('div')(({ theme }) => ({
-  maxWidth: 480,
-  margin: 'auto',
-  minHeight: '100vh',
-  display: 'flex',
-  justifyContent: 'center',
-  flexDirection: 'column',
-  padding: theme.spacing(12, 0),
+  width: '380px',
+  height: '433px',
+  flexShrink: 0,
+  borderRadius: '28px',
+  background: 'var(--white-0, #FFF)',
+  marginTop: '-335px',
+  marginLeft: '918px', // Ajustamos a margem à esquerda para separar o StyledContent do StyledImgContainer
 }));
-
-// ----------------------------------------------------------------------
 
 export default function LoginPage() {
   const mdUp = useResponsive('up', 'md');
 
   return (
-    <>
-      <Helmet>
-        <title> Login | Minimal UI </title>
-      </Helmet>
+    <StyledPageContainer>
+      <>
+        <Helmet>
+          <title> Pontua | Login </title>
+        </Helmet>
+        <>
+          <StyledImgLogo>
+            {mdUp && (
+              <img src="/assets/illustrations/logopontua.png" alt="login" />
+            )}
+          </StyledImgLogo>
 
-      <StyledRoot>
-        <Logo
-          sx={{
-            position: 'fixed',
-            top: { xs: 16, sm: 24, md: 40 },
-            left: { xs: 16, sm: 24, md: 40 },
-          }}
-        />
+          <StyledImgContainer>
+            {mdUp && (
+              <img src="/assets/illustrations/bro.png" alt="login" />
+            )}
+          </StyledImgContainer>
 
-        {mdUp && (
-          <StyledSection>
-            <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-              Hi, Welcome Back
-            </Typography>
-            <img src="/assets/illustrations/illustration_login.png" alt="login" />
-          </StyledSection>
-        )}
-
-        <Container maxWidth="sm">
           <StyledContent>
-            <Typography variant="h4" gutterBottom>
-              Sign in to Minimal
-            </Typography>
-
-            <Typography variant="body2" sx={{ mb: 5 }}>
-              Don’t have an account? {''}
-              <Link variant="subtitle2">Get started</Link>
-            </Typography>
-
-            <Stack direction="row" spacing={2}>
-              <Button fullWidth size="large" color="inherit" variant="outlined">
-                <Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />
-              </Button>
-
-              <Button fullWidth size="large" color="inherit" variant="outlined">
-                <Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />
-              </Button>
-
-              <Button fullWidth size="large" color="inherit" variant="outlined">
-                <Iconify icon="eva:twitter-fill" color="#1C9CEA" width={22} height={22} />
-              </Button>
-            </Stack>
-
-            <Divider sx={{ my: 3 }}>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                OR
+            <Container maxWidth="sm">
+              <Typography variant="h4" gutterBottom>
+                Bem-vindo.
               </Typography>
-            </Divider>
-
-            <LoginForm />
+              <Typography variant="body2" sx={{ mb: 5 }}>
+                informe as suas credenciais de acesso ao portal
+              </Typography>
+              <LoginForm />
+            </Container>
           </StyledContent>
-        </Container>
-      </StyledRoot>
-    </>
+        </>
+      </>
+    </StyledPageContainer>
   );
 }

@@ -1,27 +1,35 @@
-import { Helmet } from 'react-helmet-async';
 import { faker } from '@faker-js/faker';
-// @mui
+import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { Container, Grid, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { Grid, Container, Typography } from '@mui/material';
-// components
+import api from '../services/api';
 import Iconify from '../components/iconify';
-// sections
 import {
-  AppTasks,
+  AppConversionRates,
+  AppCurrentSubject,
+  AppCurrentVisits,
   AppNewsUpdate,
   AppOrderTimeline,
-  AppCurrentVisits,
-  AppWebsiteVisits,
+  AppTasks,
   AppTrafficBySite,
+  AppWebsiteVisits,
   AppWidgetSummary,
-  AppCurrentSubject,
-  AppConversionRates,
 } from '../sections/@dashboard/app';
 
 // ----------------------------------------------------------------------
 
 export default function DashboardAppPage() {
   const theme = useTheme();
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const res = await api.get('/users');
+
+      setUsers(res.data);
+    })();
+  }, []);
 
   return (
     <>
@@ -29,10 +37,13 @@ export default function DashboardAppPage() {
         <title> Dashboard | Minimal UI </title>
       </Helmet>
 
+
       <Container maxWidth="xl">
-        <Typography variant="h4" sx={{ mb: 5 }}>
-          Hi, Welcome back
+      {users.map((user) => (
+        <Typography key={user.name} variant="h4" sx={{ mb: 5 }}>
+          Olá, seja bem-vindo de volta {user.name}
         </Typography>
+      ))}
 
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={3}>

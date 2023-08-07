@@ -1,4 +1,6 @@
+import React, { useContext } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
+import { Context } from './context/AuthContext';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
@@ -12,27 +14,29 @@ import DashboardAppPage from './pages/DashboardAppPage';
 
 // ----------------------------------------------------------------------
 
+
 export default function Router() {
+  const { authenticated } = useContext(Context);
   const routes = useRoutes([
     {
-      path: '/dashboard',
-      element: <DashboardLayout />,
-      children: [
-        { element: <Navigate to="/dashboard/app" />, index: true },
-        { path: 'app', element: <DashboardAppPage /> },
-        { path: 'user', element: <UserPage /> },
-        { path: 'products', element: <ProductsPage /> },
-        { path: 'blog', element: <BlogPage /> },
-      ],
+      path: '/login',
+      element: <LoginPage />,
+      index: true
     },
     {
-      path: 'login',
-      element: <LoginPage />,
+      path: '/',
+      element: authenticated ? <DashboardLayout /> : <Navigate to="/login" />,
+      children: [
+        { path: 'dashboard', element: <Navigate to="/dashboard/app" /> },
+        { path: 'dashboard/app', element: <DashboardAppPage /> },
+        { path: 'dashboard/user', element: <UserPage /> },
+        { path: 'dashboard/products', element: <ProductsPage /> },
+        { path: 'dashboard/blog', element: <BlogPage /> },
+      ],
     },
     {
       element: <SimpleLayout />,
       children: [
-        { element: <Navigate to="/dashboard/app" />, index: true },
         { path: '404', element: <Page404 /> },
         { path: '*', element: <Navigate to="/404" /> },
       ],

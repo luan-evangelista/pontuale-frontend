@@ -1,11 +1,10 @@
-import { useState } from 'react';
-// @mui
+import { Avatar, Box, Divider, IconButton, MenuItem, Popover, Stack, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
-import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton, Popover } from '@mui/material';
-// mocks_
+import { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import account from '../../../_mock/account';
-
-// ----------------------------------------------------------------------
+import { Context } from '../../../context/AuthContext';
+import api from '../../../services/api';
 
 const MENU_OPTIONS = [
   {
@@ -25,7 +24,11 @@ const MENU_OPTIONS = [
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
+  const navigate = useNavigate();
+  const { handleLogout } = useContext(Context);
   const [open, setOpen] = useState(null);
+  const [users, setUsers] = useState([]);
+  console.log("🚀 ~ file: AccountPopover.js:31 ~ AccountPopover ~ users:", users)
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
@@ -35,8 +38,23 @@ export default function AccountPopover() {
     setOpen(null);
   };
 
+  const handleLogoutButton = async () => {
+    await handleLogout();
+    setOpen(null);
+    navigate('/');
+  }
+
+  useEffect(() => {
+    (async () => {
+      const res = await api.get('/users');
+
+      setUsers(res.data);
+    })();
+  }, []);
+
   return (
     <>
+
       <IconButton
         onClick={handleOpen}
         sx={{
@@ -56,51 +74,55 @@ export default function AccountPopover() {
       >
         <Avatar src={account.photoURL} alt="photoURL" />
       </IconButton>
-
-      <Popover
-        open={Boolean(open)}
-        anchorEl={open}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            p: 0,
-            mt: 1.5,
-            ml: 0.75,
-            width: 180,
-            '& .MuiMenuItem-root': {
-              typography: 'body2',
-              borderRadius: 0.75,
+      {users.map((user) => (
+        <Popover
+          open={Boolean(open)}
+          anchorEl={open}
+          onClose={handleClose}
+          key={user.email}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          PaperProps={{
+            sx: {
+              p: 0,
+              mt: 1.5,
+              ml: 0.75,
+              width: 180,
+              '& .MuiMenuItem-root': {
+                typography: 'body2',
+                borderRadius: 0.75,
+              },
             },
-          },
-        }}
-      >
-        <Box sx={{ my: 1.5, px: 2.5 }}>
-          <Typography variant="subtitle2" noWrap>
-            {account.displayName}
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.email}
-          </Typography>
-        </Box>
+          }}
+        >
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+          <Box sx={{ my: 1.5, px: 2.5 }}>
+            <Typography variant="subtitle2" noWrap>
+              {user.name}
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
+              {user.email}
+            </Typography>
+          </Box>
 
-        <Stack sx={{ p: 1 }}>
-          {MENU_OPTIONS.map((option) => (
-            <MenuItem key={option.label} onClick={handleClose}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Stack>
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+          <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <MenuItem onClick={handleClose} sx={{ m: 1 }}>
-          Logout
-        </MenuItem>
-      </Popover>
+          <Stack sx={{ p: 1 }}>
+            {MENU_OPTIONS.map((option) => (
+              <MenuItem key={option.label} onClick={handleClose}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Stack>
+
+          <Divider sx={{ borderStyle: 'dashed' }} />
+
+          <MenuItem onClick={handleLogoutButton} sx={{ m: 1 }}>
+            Logout
+          </MenuItem>
+        </Popover>
+      ))}
     </>
   );
 }
