@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from 'react';
 import api from '../services/api';
+import apiMarvel from '../services/marvel/apiMarvel';
 
 const Context = createContext();
 
@@ -41,6 +42,10 @@ const AuthProvider = ({ children }) => {
     }
 
     useEffect(() => {
+        apiMarvel.get('/characters')
+        .then(response => console.log(response.data.data))
+        .catch(err => console.log(err))
+
         const token = localStorage.getItem('@token');
         console.log("TOKEN useEffect:", token)
 

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 // @mui
 import { alpha, styled } from '@mui/material/styles';
-import { Box, Link, Card, Grid, Avatar, Typography, CardContent } from '@mui/material';
+import { Box, Link, Card, Grid, Avatar, Typography, CardContent, Divider } from '@mui/material';
 // utils
 import { fDate } from '../../../utils/formatTime';
 import { fShortenNumber } from '../../../utils/formatNumber';
@@ -57,15 +57,11 @@ BlogPostCard.propTypes = {
 };
 
 export default function BlogPostCard({ post, index }) {
-  const { cover, title, view, comment, share, author, createdAt } = post;
+  console.log("🚀 post:", post)
+  const { name, thumbnail, description } = post;
+  console.log("🚀 ~ file: BlogPostCard.js:63 ~ BlogPostCard ~ description:", description)
   const latestPostLarge = index === 0;
   const latestPost = index === 1 || index === 2;
-
-  const POST_INFO = [
-    { number: comment, icon: 'eva:message-circle-fill' },
-    { number: view, icon: 'eva:eye-fill' },
-    { number: share, icon: 'eva:share-fill' },
-  ];
 
   return (
     <Grid item xs={12} sm={latestPostLarge ? 12 : 6} md={latestPostLarge ? 6 : 3}>
@@ -104,9 +100,9 @@ export default function BlogPostCard({ post, index }) {
               ...((latestPostLarge || latestPost) && { display: 'none' }),
             }}
           />
-          <StyledAvatar
-            alt={author.name}
-            src={author.avatarUrl}
+          {/* <StyledAvatar
+            alt={name}
+            src={`${thumbnail.path}.${thumbnail.extension}`}
             sx={{
               ...((latestPostLarge || latestPost) && {
                 zIndex: 9,
@@ -116,9 +112,9 @@ export default function BlogPostCard({ post, index }) {
                 height: 40,
               }),
             }}
-          />
+          /> */}
 
-          <StyledCover alt={title} src={cover} />
+          <StyledCover alt={name} src={`${thumbnail.path}.${thumbnail.extension}`} />
         </StyledCardMedia>
 
         <CardContent
@@ -131,9 +127,9 @@ export default function BlogPostCard({ post, index }) {
             }),
           }}
         >
-          <Typography gutterBottom variant="caption" sx={{ color: 'text.disabled', display: 'block' }}>
-            {fDate(createdAt)}
-          </Typography>
+            {/* <Typography gutterBottom variant="caption" sx={{ color: 'text.disabled', display: 'block' }}>
+              {fDate(createdAt)}
+            </Typography> */}
 
           <StyledTitle
             color="inherit"
@@ -146,10 +142,26 @@ export default function BlogPostCard({ post, index }) {
               }),
             }}
           >
-            {title}
+            {name}
           </StyledTitle>
 
-          <StyledInfo>
+          <Divider />
+
+          <StyledTitle
+            color="inherit"
+            variant="subtitle2"
+            underline="hover"
+            sx={{
+              ...(latestPostLarge && { typography: 'h5', height: 60 }),
+              ...((latestPostLarge || latestPost) && {
+                color: 'common.white',
+              }),
+            }}
+          >
+            {description}
+          </StyledTitle>
+
+          {/* <StyledInfo>
             {POST_INFO.map((info, index) => (
               <Box
                 key={index}
@@ -166,7 +178,7 @@ export default function BlogPostCard({ post, index }) {
                 <Typography variant="caption">{fShortenNumber(info.number)}</Typography>
               </Box>
             ))}
-          </StyledInfo>
+          </StyledInfo> */}
         </CardContent>
       </Card>
     </Grid>
