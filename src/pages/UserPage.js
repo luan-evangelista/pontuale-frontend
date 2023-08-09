@@ -1,294 +1,166 @@
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
-import { useState } from 'react';
-// @mui
+import TabContext from '@mui/lab/TabContext';
+import TabList from '@mui/lab/TabList';
+import TabPanel from '@mui/lab/TabPanel';
 import {
-  Card,
-  Table,
-  Stack,
-  Paper,
-  Avatar,
-  Button,
-  Popover,
-  Checkbox,
-  TableRow,
-  MenuItem,
-  TableBody,
-  TableCell,
   Container,
-  Typography,
-  IconButton,
-  TableContainer,
-  TablePagination,
+  Grid,
+  Stack,
+  Typography
 } from '@mui/material';
-// components
-import Label from '../components/label';
-import Iconify from '../components/iconify';
-import Scrollbar from '../components/scrollbar';
-// sections
-import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
-// mock
-import USERLIST from '../_mock/user';
-
-// ----------------------------------------------------------------------
-
-const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
-  { id: '' },
-];
-
-// ----------------------------------------------------------------------
-
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function applySortFilter(array, comparator, query) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-  if (query) {
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
-  }
-  return stabilizedThis.map((el) => el[0]);
-}
+import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
+import { useParams } from 'react-router-dom';
+import Info from '../components/table-navigation/components/Info';
+import apiMarvel from '../services/marvel/apiMarvel';
 
 export default function UserPage() {
-  const [open, setOpen] = useState(null);
+  const [value, setValue] = React.useState('1');
+  const [characters, setCharacters] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [page, setPage] = useState(0);
-
-  const [order, setOrder] = useState('asc');
-
-  const [selected, setSelected] = useState([]);
-
-  const [orderBy, setOrderBy] = useState('name');
-
-  const [filterName, setFilterName] = useState('');
-
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const handleOpenMenu = (event) => {
-    setOpen(event.currentTarget);
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
   };
 
-  const handleCloseMenu = () => {
-    setOpen(null);
-  };
+  useEffect(() => {
+    apiMarvel.get('/characters')
+      .then(response => {
+        const characterArray = Object.values(response.data.data.results);
 
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
-
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.name);
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
-  };
-
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
-    }
-    setSelected(newSelected);
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setPage(0);
-    setRowsPerPage(parseInt(event.target.value, 10));
-  };
-
-  const handleFilterByName = (event) => {
-    setPage(0);
-    setFilterName(event.target.value);
-  };
-
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
-
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
-
-  const isNotFound = !filteredUsers.length && !!filterName;
+        const charactersWithDescription = characterArray.filter(character => character.description);
+        console.log("🚀 ~ file: UserPage.js:32 ~ useEffect ~ charactersWithDescription:", charactersWithDescription)
+        setCharacters(charactersWithDescription);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.log(err);
+        setIsLoading(false);
+      });
+  }, []);
 
   return (
     <>
       <Helmet>
-        <title> User | Minimal UI </title>
+        <title> Perfil </title>
       </Helmet>
 
       <Container>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-          <Typography variant="h4" gutterBottom>
-            User
-          </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New User
-          </Button>
-        </Stack>
+        {isLoading ? (
+          <Typography variant="h5">Carregando...</Typography>
+        ) : (
+          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+            <Box sx={{ width: '100%', typography: 'body1' }}>
+              <TabContext value={value}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                  <TabList onChange={handleChange} aria-label="lab API tabs example">
+                    <Tab label="Visão Geral" value="1" />
+                    <Tab label="Teams" value="2" />
+                    <Tab label="Powers" value="3" />
+                    <Tab label="Species" value="4" />
+                    <Tab label="Authors" value="5" />
+                  </TabList>
+                </Box>
 
-        <Card>
-          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+                <TabPanel value="1">
+                  <Info key={characters[12].id} post={characters[12]} index={12} />
+                </TabPanel>
 
-          <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <UserListHead
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={USERLIST.length}
-                  numSelected={selected.length}
-                  onRequestSort={handleRequestSort}
-                  onSelectAllClick={handleSelectAllClick}
-                />
-                <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, role, status, company, avatarUrl, isVerified } = row;
-                    const selectedUser = selected.indexOf(name) !== -1;
+                <TabPanel value="2">
+                  <Grid item md={12}>
+                    {characters[12].stories.items[0].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].stories.items[1].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].stories.items[2].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].stories.items[3].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].stories.items[4].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].stories.items[5].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].stories.items[6].name}
+                  </Grid>
+                </TabPanel>
 
-                    return (
-                      <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedUser}>
-                        <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, name)} />
-                        </TableCell>
 
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={avatarUrl} />
-                            <Typography variant="subtitle2" noWrap>
-                              {name}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
+                <TabPanel value="3">
+                  <Grid item md={12}>
+                    {characters[12].series.items[0].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].series.items[1].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].series.items[2].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].series.items[3].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].series.items[4].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].series.items[5].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].series.items[6].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].series.items[7].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].series.items[8].name}
+                  </Grid>
+                </TabPanel>
 
-                        <TableCell align="left">{company}</TableCell>
+                <TabPanel value="4">
+                <Grid item md={12}>
+                    {characters[12].events.items[0].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].events.items[1].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].events.items[2].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].events.items[3].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].events.items[4].name}
+                  </Grid>
+                </TabPanel>
 
-                        <TableCell align="left">{role}</TableCell>
+                <TabPanel value="5">
+                <Grid item md={12}>
+                    {characters[12].comics.items[0].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].comics.items[1].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].comics.items[2].name}
+                  </Grid>
+                  <Grid item md={12}>
+                    {characters[12].comics.items[3].name}
+                  </Grid>
+                </TabPanel>
 
-                        <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
-
-                        <TableCell align="left">
-                          <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
-                        </TableCell>
-
-                        <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
-                            <Iconify icon={'eva:more-vertical-fill'} />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
-                  )}
-                </TableBody>
-
-                {isNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <Paper
-                          sx={{
-                            textAlign: 'center',
-                          }}
-                        >
-                          <Typography variant="h6" paragraph>
-                            Not found
-                          </Typography>
-
-                          <Typography variant="body2">
-                            No results found for &nbsp;
-                            <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Try checking for typos or using complete words.
-                          </Typography>
-                        </Paper>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                )}
-              </Table>
-            </TableContainer>
-          </Scrollbar>
-
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={USERLIST.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Card>
+                
+              </TabContext>
+            </Box>
+          </Stack>
+        )}
       </Container>
-
-      <Popover
-        open={Boolean(open)}
-        anchorEl={open}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            p: 1,
-            width: 140,
-            '& .MuiMenuItem-root': {
-              px: 1,
-              typography: 'body2',
-              borderRadius: 0.75,
-            },
-          },
-        }}
-      >
-        <MenuItem>
-          <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-          Edit
-        </MenuItem>
-
-        <MenuItem sx={{ color: 'error.main' }}>
-          <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-          Delete
-        </MenuItem>
-      </Popover>
     </>
   );
 }

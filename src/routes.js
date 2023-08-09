@@ -9,11 +9,9 @@ import BlogPage from './pages/BlogPage';
 import UserPage from './pages/UserPage';
 import LoginPage from './pages/LoginPage';
 import Page404 from './pages/Page404';
-import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 
 // ----------------------------------------------------------------------
-
 
 export default function Router() {
   const { authenticated } = useContext(Context);
@@ -21,7 +19,7 @@ export default function Router() {
     {
       path: '/login',
       element: <LoginPage />,
-      index: true
+      index: true,
     },
     {
       path: '/',
@@ -30,7 +28,6 @@ export default function Router() {
         { path: 'dashboard', element: <Navigate to="/dashboard/app" /> },
         { path: 'dashboard/app', element: <DashboardAppPage /> },
         { path: 'dashboard/user', element: <UserPage /> },
-        { path: 'dashboard/products', element: <ProductsPage /> },
         { path: 'dashboard/blog', element: <BlogPage /> },
       ],
     },

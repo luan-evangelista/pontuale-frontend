@@ -5,6 +5,14 @@ import { styled } from '@mui/material/styles';
 import { Button, Typography, Container, Box } from '@mui/material';
 
 // ----------------------------------------------------------------------
+const StyledPageContainer = styled('div')(({ theme }) => ({
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  backgroundColor: 'var(--blue-800, #00113D)'
+}));
 
 const StyledContent = styled('div')(({ theme }) => ({
   maxWidth: 480,
@@ -20,33 +28,35 @@ const StyledContent = styled('div')(({ theme }) => ({
 
 export default function Page404() {
   return (
-    <>
-      <Helmet>
-        <title> 404 Page Not Found | Minimal UI </title>
-      </Helmet>
+    <StyledPageContainer>
+      <>
+        <Helmet>
+          <title> 404 Page Not Found </title>
+        </Helmet>
 
-      <Container>
-        <StyledContent sx={{ textAlign: 'center', alignItems: 'center' }}>
-          <Typography variant="h3" paragraph>
-            Sorry, page not found!
-          </Typography>
+        <Container>
+          <StyledContent sx={{ textAlign: 'center', alignItems: 'center' }}>
+            <Typography variant="h3" paragraph>
+              Sorry, page not found!
+            </Typography>
 
-          <Typography sx={{ color: 'text.secondary' }}>
-            Sorry, we couldn’t find the page you’re looking for. Perhaps you’ve mistyped the URL? Be sure to check your
-            spelling.
-          </Typography>
+            <Typography sx={{ color: 'text.secondary' }}>
+              Sorry, we couldn’t find the page you’re looking for. Perhaps you’ve mistyped the URL? Be sure to check your
+              spelling.
+            </Typography>
 
-          <Box
-            component="img"
-            src="/assets/illustrations/illustration_404.svg"
-            sx={{ height: 260, mx: 'auto', my: { xs: 5, sm: 10 } }}
-          />
+            <Box
+              component="img"
+              src="/assets/illustrations/illustration_404.svg"
+              sx={{ height: 260, mx: 'auto', my: { xs: 5, sm: 10 } }}
+            />
 
-          <Button to="/" size="large" variant="contained" component={RouterLink}>
-            Go to Home
-          </Button>
-        </StyledContent>
-      </Container>
-    </>
+            <Button to="/" size="large" variant="contained" component={RouterLink}>
+              Go to Home
+            </Button>
+          </StyledContent>
+        </Container>
+      </>
+    </StyledPageContainer>
   );
 }
